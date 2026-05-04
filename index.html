@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LibraVerse 4.0 — Онлайн-библиотека</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="#" onclick="navigateTo('home')" class="logo">LibraVerse</a>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <a href="#" onclick="navigateTo('home')" class="nav-item active" data-page="home">🏠 Главная</a>
+        <a href="#" onclick="navigateTo('catalog')" class="nav-item" data-page="catalog">🗂️ Каталог</a>
+        <a href="#" onclick="navigateTo('reading')" class="nav-item" data-page="reading">📖 Читаю</a>
+        <a href="#" onclick="navigateTo('favorites')" class="nav-item" data-page="favorites">❤️ Избранное</a>
+        <a href="#" onclick="navigateTo('reviews')" class="nav-item" data-page="reviews">💬 Отзывы</a>
+        <a href="#" onclick="navigateTo('profile')" class="nav-item" data-page="profile">👤 Профиль</a>
+        <a href="#" onclick="navigateTo('contacts')" class="nav-item" data-page="contacts">📧 Контакты</a>
+        <div id="adminMenuContainer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <a href="#" onclick="navigateTo('admin')" class="nav-item admin-link" data-page="admin">⚙️ Админ-панель</a>
+        </div>
+        <div id="logoutContainer" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+          <a href="#" onclick="handleLogout()" class="nav-item" style="color: var(--danger);">🚪 Выход</a>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="genre-filter">
+          <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px; font-weight: 600;">ЖАНРЫ</div>
+          <span class="genre-tag" onclick="filterByGenre('')">🌐 Все</span>
+          <span class="genre-tag" onclick="filterByGenre('Классика')">📜 Классика</span>
+          <span class="genre-tag" onclick="filterByGenre('Фэнтези')">🧙 Фэнтези</span>
+          <span class="genre-tag" onclick="filterByGenre('Фантастика')">🚀 Фантастика</span>
+          <span class="genre-tag" onclick="filterByGenre('Детектив')">🔍 Детектив</span>
+          <span class="genre-tag" onclick="filterByGenre('Роман')">💌 Роман</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- TOP BAR -->
+      <div class="top-bar">
+        <input type="text" id="searchInput" placeholder="Поиск книг, авторов, жанров... (нажмите /)" class="search-input">
+        <div class="top-bar-buttons">
+          <button class="icon-btn" onclick="navigateTo('favorites')" title="Избранное">❤️</button>
+          <button class="icon-btn" onclick="navigateTo('reading')" title="Список чтения">📖</button>
+          <button class="icon-btn" onclick="navigateTo('profile')" title="Профиль">👤</button>
+        </div>
+      </div>
+
+      <!-- PAGES -->
+      <div class="pages-container">
+        <!-- HOME PAGE -->
+        <div id="homePage" class="page active">
+          <div class="hero">
+            <h1>✨ Добро пожаловать в LibraVerse</h1>
+            <p>Ваша цифровая библиотека мечты</p>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 12px;">Тысячи книг в одном месте. Читайте классику и современную литературу, сохраняйте избранное и отслеживайте прогресс чтения.</p>
+            <div style="display: flex; gap: 12px; margin-top: 20px;">
+              <button class="btn-primary" onclick="navigateTo('catalog')">🗂️ Открыть каталог</button>
+              <button class="btn-secondary" onclick="navigateTo('reading')">📖 Продолжить чтение</button>
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalBooks">0</div>
+              <div class="stat-label">Всего книг</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="availableBooks">0</div>
+              <div class="stat-label">Доступно</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="readingCount">0</div>
+              <div class="stat-label">Читаю</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="favoritesCount">0</div>
+              <div class="stat-label">Избранное</div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2>⭐ Рекомендуемые книги</h2>
+              <a href="#" onclick="navigateTo('catalog')" class="link-more">Смотреть все →</a>
+            </div>
+            <div id="recommendedBooks" class="books-grid"></div>
+          </div>
+
+          <div class="section">
+            <div class="section-header">
+              <h2>📖 Продолжить чтение</h2>
+              <a href="#" onclick="navigateTo('reading')" class="link-more">Все книги →</a>
+            </div>
+            <div id="readingList" class="reading-list"></div>
+          </div>
+        </div>
+
+        <!-- CATALOG PAGE -->
+        <div id="catalogPage" class="page">
+          <h2>🗂️ Каталог книг</h2>
+          <div id="catalogBooks" class="books-grid"></div>
+        </div>
+
+        <!-- FAVORITES PAGE -->
+        <div id="favoritesPage" class="page">
+          <h2>❤️ Избранное</h2>
+          <div id="favoritesList" class="books-grid"></div>
+        </div>
+
+        <!-- READING PAGE -->
+        <div id="readingPage" class="page">
+          <h2>📖 Мой список чтения</h2>
+          <div id="readingPageList" class="reading-list"></div>
+        </div>
+
+        <!-- REVIEWS PAGE -->
+        <div id="reviewsPage" class="page">
+          <h2>💬 Мои отзывы</h2>
+          <div id="myReviewsList"></div>
+        </div>
+
+        <!-- PROFILE PAGE -->
+        <div id="profilePage" class="page">
+          <div class="profile-container">
+            <div class="profile-header">
+              <div class="profile-avatar">👤</div>
+              <div class="profile-info">
+                <h2 id="profileUsername">Не авторизован</h2>
+                <p id="profileRole">Войдите, чтобы продолжить</p>
+              </div>
+              <button class="btn-secondary" id="editProfileBtn" onclick="openEditProfile()" style="display: none;">✏️ Редактировать</button>
+            </div>
+
+            <div id="profileStats" style="display: none;">
+              <h3>📊 Статистика</h3>
+              <div class="stats-grid" style="margin-top: 16px;">
+                <div class="stat-card">
+                  <div class="stat-number" id="userBooksRead">0</div>
+                  <div class="stat-label">Прочитано</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" id="userBooksReading">0</div>
+                  <div class="stat-label">Читаю</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-number" id="userReviewsCount">0</div>
+                  <div class="stat-label">Отзывов</div>
+                </div>
+              </div>
+            </div>
+
+            <div id="profileActions" style="display: none; margin-top: 24px;">
+              <button class="btn-primary" onclick="exportData()">📥 Экспортировать данные</button>
+              <button class="btn-secondary" onclick="document.getElementById('importFile').click();">📤 Импортировать данные</button>
+              <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(this.files[0])">
+              <button class="btn-danger" onclick="handleLogout()" style="margin-top: 12px; width: 100%;">🚪 Выход из профиля</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTACTS PAGE -->
+        <div id="contactsPage" class="page">
+          <div class="contacts-container">
+            <h2>📧 Контакты и поддержка</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 24px;">Свяжитесь с нами по любым вопросам</p>
+
+            <div class="contacts-grid">
+              <div class="contact-card">
+                <div class="contact-icon">📧</div>
+                <h3>Email</h3>
+                <p><a href="mailto:support@libraverse.ru" style="color: var(--accent); text-decoration: none;">support@libraverse.ru</a></p>
+              </div>
+              <div class="contact-card">
+                <div class="contact-icon">📱</div>
+                <h3>Телефон</h3>
+                <p><a href="tel:+79991234567" style="color: var(--accent); text-decoration: none;">+7 (999) 123-45-67</a></p>
+              </div>
+              <div class="contact-card">
+                <div class="contact-icon">🌐</div>
+                <h3>Веб-сайт</h3>
+                <p><a href="https://libraverse.ru" target="_blank" style="color: var(--accent); text-decoration: none;">www.libraverse.ru</a></p>
+              </div>
+              <div class="contact-card">
+                <div class="contact-icon">📍</div>
+                <h3>Адрес</h3>
+                <p>Москва, ул. Книжная, д. 42</p>
+              </div>
+            </div>
+
+            <div class="contact-form">
+              <h3>✉️ Отправить сообщение</h3>
+              <form onsubmit="sendMessage(event)">
+                <input type="text" placeholder="Ваше имя" required style="width: 100%; padding: 10px; margin-bottom: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); outline: none;">
+                <input type="email" placeholder="Ваш email" required style="width: 100%; padding: 10px; margin-bottom: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); outline: none;">
+                <textarea placeholder="Ваше сообщение" required style="width: 100%; padding: 10px; margin-bottom: 12px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); outline: none; font-family: inherit; min-height: 120px;"></textarea>
+                <button type="submit" class="btn-primary" style="width: 100%;">Отправить</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- ADMIN PAGE -->
+        <div id="adminPage" class="page">
+          <div id="adminContainer"></div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>LibraVerse</h4>
+            <p>Ваша личная онлайн-библиотека</p>
+          </div>
+          <div class="footer-section">
+            <h4>Навигация</h4>
+            <ul>
+              <li><a href="#" onclick="navigateTo('home')">Главная</a></li>
+              <li><a href="#" onclick="navigateTo('catalog')">Каталог</a></li>
+              <li><a href="#" onclick="navigateTo('contacts')">Контакты</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Информация</h4>
+            <ul>
+              <li><a href="#">О нас</a></li>
+              <li><a href="#">Условия использования</a></li>
+              <li><a href="#">Политика конфиденциальности</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h4>Соцсети</h4>
+            <div style="display: flex; gap: 12px; font-size: 20px;">
+              <a href="#" style="text-decoration: none;">📘</a>
+              <a href="#" style="text-decoration: none;">🐦</a>
+              <a href="#" style="text-decoration: none;">📷</a>
+            </div>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2026 LibraVerse. Все права защищены.</p>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- MODALS -->
+  <div id="authModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeAuthModal()">✕</button>
+      <h2>🔐 LibraVerse</h2>
+      
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchAuthTab('login')">Вход</button>
+        <button class="modal-tab" onclick="switchAuthTab('register')">Регистрация</button>
+        <button class="modal-tab" onclick="switchAuthTab('admin')">Админ</button>
+      </div>
+
+      <div id="loginTab" class="modal-tab-content active">
+        <input type="text" id="loginUsername" placeholder="Имя пользователя" class="modal-input">
+        <input type="password" id="loginPassword" placeholder="Пароль" class="modal-input">
+        <button class="btn-primary" onclick="handleLogin()" style="width: 100%;">Войти</button>
+      </div>
+
+      <div id="registerTab" class="modal-tab-content">
+        <input type="text" id="regUsername" placeholder="Имя пользователя" class="modal-input">
+        <input type="email" id="regEmail" placeholder="Email" class="modal-input">
+        <input type="password" id="regPassword" placeholder="Пароль" class="modal-input">
+        <input type="password" id="regConfirm" placeholder="Подтвердите пароль" class="modal-input">
+        <button class="btn-primary" onclick="handleRegister()" style="width: 100%;">Зарегистрироваться</button>
+      </div>
+
+      <div id="adminTab" class="modal-tab-content">
+        <input type="password" id="adminCode" placeholder="Код администратора" class="modal-input">
+        <button class="btn-primary" onclick="handleAdminLogin()" style="width: 100%;">Войти как админ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOK MODAL -->
+  <div id="bookModal" class="modal">
+    <div class="modal-content modal-book">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="bookModalContent"></div>
+    </div>
+  </div>
+
+  <!-- REVIEWS MODAL -->
+  <div id="reviewsModal" class="modal">
+    <div class="modal-content modal-book">
+      <button class="modal-close" onclick="closeReviewsModal()">✕</button>
+      <div id="reviewsContent"></div>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div id="editProfileModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeEditProfile()">✕</button>
+      <h2>✏️ Редактировать профиль</h2>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary);">Имя пользователя</label>
+        <input type="text" id="editUsername" placeholder="Введите новое имя пользователя" class="modal-input">
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary);">Email</label>
+        <input type="email" id="editEmail" placeholder="Введите ваш email" class="modal-input">
+      </div>
+      <div style="margin-bottom: 16px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-secondary);">Новый пароль</label>
+        <input type="password" id="editPassword" placeholder="Оставьте пусто, если не хотите менять" class="modal-input">
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <button class="btn-secondary" onclick="closeEditProfile()" style="width: 100%;">Отмена</button>
+        <button class="btn-primary" onclick="saveProfileChanges()" style="width: 100%;">Сохранить</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast"></div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
